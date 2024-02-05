@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Get total physical memory (in MB)
+total_mem=$(sysctl -n hw.memsize | awk '{print $0/1024/1024 " MB"}')
+
+# Get memory usage statistics from vm_stat
+vm_stat=$(vm_stat | grep free | awk '{print $3}' | sed 's/\.//')
+
+# Calculate page size (in bytes)
+page_size=$(vm_stat | grep "page size of" | awk '{print $8}')
+
+# Calculate total free memory (in MB)
+free_mem=$(echo "$vm_stat $page_size" | awk '{print ($1 * $2)/1024/1024 " MB"}')
+
+# Calculate used memory
+used_mem=$(echo "$total_mem $free_mem" | awk '{print $1 - $2}')
+
+echo "Total memory: $total_mem"
+echo "Used memory: $used_mem MB"
+echo "Free memory: $free_mem"
+
